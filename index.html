@@ -3,290 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medicine Bardwan | Premium Admin Portal</title>
+    <title>Medicine Bardwan | Admin Enterprise</title>
     
-    <!-- Fonts & CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Professional Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- React & Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+            margin: 0;
+        }
+        
         .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        .stat-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
-        /* Hide scrollbar but allow scrolling */
+        
+        /* Smooth Iframe Container */
+        .content-wrapper {
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* Custom Scrollbar for Sidebar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Loading Animation */
+        .loader-line {
+            height: 3px;
+            width: 100%;
+            background: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-progress {
+            position: absolute;
+            height: 100%;
+            background: #3b82f6;
+            animation: loading 2s infinite ease-in-out;
+        }
+        @keyframes loading {
+            0% { left: -100%; width: 30%; }
+            50% { width: 60%; }
+            100% { left: 100%; width: 30%; }
+        }
     </style>
 </head>
-<body class="bg-[#f1f5f9]">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect } = React;
 
         // --- CONFIGURATION ---
-        const THEMES = [
-            { name: 'Default Blue', primary: '#3C50E0', light: '#EBEFFD', text: '#3C50E0' },
-            { name: 'Emerald', primary: '#10B981', light: '#D1FAE5', text: '#059669' },
-            { name: 'Deep Violet', primary: '#7C3AED', light: '#EDE9FE', text: '#7C3AED' },
-            { name: 'Rose', primary: '#F43F5E', light: '#FFE4E6', text: '#E11D48' },
-            { name: 'Amber', primary: '#F59E0B', light: '#FEF3C7', text: '#D97706' },
-            { name: 'Slate', primary: '#334155', light: '#F1F5F9', text: '#1E293B' },
-            { name: 'Indigo', primary: '#6366F1', light: '#E0E7FF', text: '#4338CA' },
+        const ACCENT_THEMES = [
+            { name: 'Blue', primary: '#2563eb', bg: '#eff6ff', text: '#1e40af' },
+            { name: 'Emerald', primary: '#059669', bg: '#ecfdf5', text: '#065f46' },
+            { name: 'Indigo', primary: '#4f46e5', bg: '#eef2ff', text: '#3730a3' },
+            { name: 'Violet', primary: '#7c3aed', bg: '#f5f3ff', text: '#5b21b6' },
+            { name: 'Rose', primary: '#e11d48', bg: '#fff1f2', text: '#9f1239' },
+            { name: 'Slate', primary: '#334155', bg: '#f1f5f9', text: '#0f172a' },
         ];
 
         const MENU_ITEMS = [
             { id: 1, name: "Check List", icon: "check-square", link: "https://check-list-one-ochre.vercel.app/" },
-            { id: 2, name: "Task Delegation", icon: "user-check", link: null },
-            { id: 3, name: "Daily Attendance", icon: "calendar", link: null },
-            { id: 4, name: "Daily Work", icon: "clipboard-list", link: null },
-            { id: 5, name: "Voice Assistance", icon: "mic", link: null },
-            { id: 6, name: "CRM", icon: "users", link: null },
-            { id: 7, name: "Customer Master", icon: "user-cog", link: null },
-            { id: 8, name: "Order Comparison", icon: "bar-chart-2", link: null },
-            { id: 9, name: "Order Master", icon: "shopping-cart", link: null },
-            { id: 10, name: "Purchase FMS", icon: "file-text", link: null },
-            { id: 11, name: "SALE PURCHASE STOCK SYSTEM", icon: "database", link: null },
+            { id: 2, name: "Farmacy Voice", icon: "mic", link: "https://script.google.com/macros/s/AKfycbw_AdxUZs140zqw75jaL0qihFBHIhxr0_LyL08MhlNqYWwPcoYTxAjVbvj3UQxsAI5X/exec" },
+            { id: 3, name: "Price Comparison", icon: "trending-up", link: "https://script.google.com/macros/s/AKfycbwUhmnmSJj8cu69x3YH8EvSWz7y_S_23NCt31Sl7zbOcIf0qnmjBFRe1vkgr2guc9GYHQ/exec" },
+            { id: 4, name: "Attendance Dashboard", icon: "calendar-check", link: "https://script.google.com/macros/s/AKfycbx1NFtN6E_PWl1QRQIu35Rv7rAaoahFyb4RSX9wRLtI8aZnt0dPASMSeEpI7GlxS9jiIQ/exec" },
+            { id: 5, name: "Order Management", icon: "shopping-cart", link: "https://script.google.com/macros/s/AKfycbxwCNFiPJHBSih_l6o8BOVWsFgdQ5-a1XbyUt9yjmxOnTuoJFxwY7ZuqLr519IhEzCi1A/exec" },
+            { id: 6, name: "Task Delegation", icon: "user-check", link: "https://script.google.com/macros/s/AKfycbzUjEFdb7RMvW6dw6gUUG4naSDsd6xuLxuCtcCKmJBoiM_488IF7lkoC7JH_-jAc1m3Tg/exec" },
+            { id: 7, name: "Employee Master", icon: "users", link: "https://script.google.com/macros/s/AKfycbzKx9StAI33YxhFQOsDxfZhu048M0L8n6JtwmOlEb4dBBJiSlULp-Fe6C3V3eyDHfMJqA/exec" },
+            { id: 8, name: "Daily Work MIS", icon: "bar-chart-2", link: "https://script.google.com/macros/s/AKfycbzPenTggHP53wmfQ342QvzwwNR_tdUW4FNiP9MvoYrkvc2zpr8bLG0W6UiQtvIgEwB4/exec" },
         ];
-
-        // --- COMPONENTS ---
-
-        const Modal = ({ isOpen, onClose }) => {
-            if (!isOpen) return null;
-            return (
-                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center animate-in fade-in zoom-in duration-300">
-                        <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i data-lucide="construction" className="w-10 h-10"></i>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Coming Soon</h3>
-                        <p className="text-gray-500 mb-8">This module is currently under development. Stay tuned!</p>
-                        <button onClick={onClose} className="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all">
-                            Got it
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        const SidebarItem = ({ item, isOpen, activeTheme, onClick }) => (
-            <button 
-                onClick={() => onClick(item)}
-                className={`w-full flex items-center gap-4 p-3 rounded-lg transition-all duration-200 group 
-                ${isOpen ? 'justify-start' : 'justify-center'} 
-                hover:bg-gray-100 text-gray-600 hover:text-gray-900`}
-            >
-                <i data-lucide={item.icon} className="w-5 h-5 shrink-0" style={{ color: isOpen ? '' : activeTheme.primary }}></i>
-                {isOpen && <span className="text-[14px] font-medium truncate">{item.name}</span>}
-                {!isOpen && (
-                    <div className="fixed left-20 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                        {item.name}
-                    </div>
-                )}
-            </button>
-        );
 
         const App = () => {
             const [isSidebarOpen, setSidebarOpen] = useState(true);
-            const [activeTheme, setActiveTheme] = useState(THEMES[0]);
-            const [showModal, setShowModal] = useState(false);
+            const [activeTheme, setActiveTheme] = useState(ACCENT_THEMES[0]);
+            const [currentUrl, setCurrentUrl] = useState(MENU_ITEMS[0].link);
+            const [activeId, setActiveId] = useState(MENU_ITEMS[0].id);
+            const [loading, setLoading] = useState(false);
 
             useEffect(() => {
                 lucide.createIcons();
-            }, [isSidebarOpen, activeTheme, showModal]);
+            }, [isSidebarOpen, activeTheme, currentUrl, activeId]);
 
             const handleNav = (item) => {
-                if (item.link) window.open(item.link, '_blank');
-                else setShowModal(true);
+                setLoading(true);
+                setActiveId(item.id);
+                setCurrentUrl(item.link);
             };
 
             return (
-                <div className="flex min-h-screen">
-                    <Modal isOpen={showModal} onClose={() => setShowModal(false)} />
-
+                <div className="flex h-screen w-full overflow-hidden bg-slate-50">
+                    
                     {/* SIDEBAR */}
-                    <aside className={`sidebar-transition bg-white border-r border-gray-200 flex flex-col z-40
+                    <aside className={`sidebar-transition bg-white border-r border-slate-200 flex flex-col z-50
                         ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
                         
-                        <div className="h-20 flex items-center px-6 border-b border-gray-100 shrink-0 overflow-hidden">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg" style={{ backgroundColor: activeTheme.primary }}>
-                                <i data-lucide="pill" className="w-6 h-6"></i>
+                        {/* BRANDING */}
+                        <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm" 
+                                 style={{ backgroundColor: activeTheme.primary }}>
+                                <i data-lucide="pill" className="w-5 h-5"></i>
                             </div>
                             {isSidebarOpen && (
-                                <span className="ml-3 font-bold text-lg text-gray-800 whitespace-nowrap">
+                                <span className="ml-3 font-bold text-slate-800 text-sm tracking-tight whitespace-nowrap">
                                     Medicine <span style={{ color: activeTheme.primary }}>Bardwan</span>
                                 </span>
                             )}
                         </div>
 
-                        <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto no-scrollbar">
-                            {MENU_ITEMS.map(item => (
-                                <SidebarItem 
-                                    key={item.id} 
-                                    item={item} 
-                                    isOpen={isSidebarOpen} 
-                                    activeTheme={activeTheme} 
-                                    onClick={handleNav} 
-                                />
-                            ))}
+                        {/* NAVIGATION */}
+                        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto no-scrollbar">
+                            {MENU_ITEMS.map((item) => {
+                                const isActive = activeId === item.id;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => handleNav(item)}
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group
+                                        ${isSidebarOpen ? 'justify-start' : 'justify-center'}
+                                        ${isActive ? 'font-semibold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
+                                        style={isActive ? { 
+                                            backgroundColor: activeTheme.bg, 
+                                            color: activeTheme.text 
+                                        } : {}}
+                                    >
+                                        <i data-lucide={item.icon} className={`w-5 h-5 shrink-0 ${isActive ? 'text-current' : 'text-slate-400 group-hover:text-slate-600'}`}></i>
+                                        {isSidebarOpen && <span className="text-sm whitespace-nowrap">{item.name}</span>}
+                                        
+                                        {!isSidebarOpen && (
+                                            <div className="fixed left-20 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                                                {item.name}
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </nav>
 
-                        <div className="p-4 border-t border-gray-100">
+                        {/* SIDEBAR FOOTER */}
+                        <div className="p-4 border-t border-slate-100">
                             <button 
                                 onClick={() => setSidebarOpen(!isSidebarOpen)}
-                                className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+                                className="w-full flex items-center justify-center p-2 rounded-md hover:bg-slate-100 text-slate-400 transition-colors"
                             >
-                                <i data-lucide={isSidebarOpen ? "chevron-left" : "menu"} className="w-6 h-6"></i>
+                                <i data-lucide={isSidebarOpen ? "chevron-left" : "menu"} className="w-5 h-5"></i>
                             </button>
                         </div>
                     </aside>
 
-                    {/* MAIN CONTENT */}
+                    {/* MAIN CONTENT AREA */}
                     <div className="flex-1 flex flex-col min-w-0">
                         
-                        {/* NAVBAR */}
-                        <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 shrink-0">
-                            <div className="flex items-center bg-gray-100 px-4 py-2 rounded-xl w-96">
-                                <i data-lucide="search" className="w-4 h-4 text-gray-400"></i>
-                                <input type="text" placeholder="Search anything..." className="bg-transparent border-none focus:ring-0 text-sm ml-3 w-full" />
+                        {/* HEADER (TOP NAV) */}
+                        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="text-sm font-medium text-slate-500">
+                                    Modules <span className="mx-2 text-slate-300">/</span>
+                                    <span className="text-slate-900 font-semibold">{MENU_ITEMS.find(m => m.id === activeId)?.name}</span>
+                                </div>
                             </div>
-
+                            
                             <div className="flex items-center gap-6">
-                                {/* Theme Plates */}
-                                <div className="hidden lg:flex items-center gap-2 bg-gray-50 p-1.5 rounded-full border border-gray-200">
-                                    {THEMES.map((t) => (
+                                {/* Professional Theme Selector */}
+                                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                                    {ACCENT_THEMES.map((t) => (
                                         <button
                                             key={t.name}
                                             onClick={() => setActiveTheme(t)}
-                                            className={`w-6 h-6 rounded-full border-2 transition-all ${activeTheme.name === t.name ? 'border-gray-800 scale-110' : 'border-transparent'}`}
-                                            style={{ backgroundColor: t.primary }}
+                                            className="w-5 h-5 rounded-full border-2 transition-all transform hover:scale-110"
+                                            style={{ 
+                                                backgroundColor: t.primary,
+                                                borderColor: activeTheme.name === t.name ? '#ffffff' : 'transparent',
+                                                boxShadow: activeTheme.name === t.name ? '0 0 0 1px #e2e8f0' : 'none'
+                                            }}
                                             title={t.name}
                                         />
                                     ))}
                                 </div>
 
-                                <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
+                                <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
                                     <div className="text-right hidden sm:block">
-                                        <p className="text-sm font-semibold text-gray-800 leading-none">Admin User</p>
-                                        <p className="text-[11px] text-green-500 font-bold uppercase mt-1">Online</p>
+                                        <p className="text-xs font-bold text-slate-800 leading-none">Admin User</p>
+                                        <p className="text-[10px] text-emerald-600 font-medium mt-1">● System Online</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm">
-                                        <img src="https://ui-avatars.com/api/?name=Admin+Bardwan&background=random" className="rounded-full" alt="user" />
+                                    <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 overflow-hidden shadow-sm">
+                                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="avatar" />
                                     </div>
                                 </div>
                             </div>
                         </header>
 
-                        {/* DASHBOARD BODY */}
-                        <main className="p-8 overflow-y-auto">
-                            <div className="max-w-7xl mx-auto">
-                                
-                                {/* Header Section */}
-                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-800">Dashboard Overview</h2>
-                                        <p className="text-gray-500 text-sm">Welcome back to your medical shop management portal.</p>
+                        {/* IFRAME VIEWPORT */}
+                        <main className="relative flex-1 bg-slate-50 overflow-hidden">
+                            {loading && (
+                                <div className="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center">
+                                    <div className="w-48">
+                                        <div className="loader-line">
+                                            <div className="loader-progress" style={{ backgroundColor: activeTheme.primary }}></div>
+                                        </div>
                                     </div>
-                                    <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-all">
-                                        <i data-lucide="download" className="w-4 h-4"></i> Export Report
-                                    </button>
+                                    <p className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Loading Module</p>
                                 </div>
-
-                                {/* Stats Grid (TailAdmin Style) */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                                    {[
-                                        { label: 'Total Revenue', val: '₹1,24,500', icon: 'dollar-sign', trend: '+12.5%', up: true },
-                                        { label: 'New Orders', val: '456', icon: 'shopping-bag', trend: '+5.2%', up: true },
-                                        { label: 'Inventory Items', val: '1,024', icon: 'package', trend: '-2.1%', up: false },
-                                        { label: 'Active Staff', val: '12', icon: 'users', trend: 'Stable', up: true },
-                                    ].map((stat, i) => (
-                                        <div key={i} className="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="p-2.5 rounded-xl" style={{ backgroundColor: activeTheme.light }}>
-                                                    <i data-lucide={stat.icon} className="w-6 h-6" style={{ color: activeTheme.primary }}></i>
-                                                </div>
-                                                <span className={`text-xs font-bold px-2 py-1 rounded-lg ${stat.up ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                                    {stat.trend}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm font-medium text-gray-500">{stat.label}</p>
-                                            <h3 className="text-2xl font-bold text-gray-800 mt-1">{stat.val}</h3>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Main Data Section */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    
-                                    {/* Left Column: Charts Placeholder */}
-                                    <div className="lg:col-span-2 space-y-8">
-                                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
-                                            <div className="flex items-center justify-between mb-8">
-                                                <h3 className="font-bold text-gray-800 text-lg">Sales Analytics</h3>
-                                                <select className="text-sm border-gray-200 rounded-lg focus:ring-0 text-gray-500 outline-none">
-                                                    <option>Last 7 Days</option>
-                                                    <option>Last 30 Days</option>
-                                                </select>
-                                            </div>
-                                            {/* Mock Chart Area */}
-                                            <div className="flex items-end justify-between h-64 gap-2 px-2">
-                                                {[40, 70, 45, 90, 65, 80, 35, 50, 85, 40, 60, 75].map((h, i) => (
-                                                    <div 
-                                                        key={i} 
-                                                        className="w-full rounded-t-md transition-all hover:opacity-80 cursor-pointer"
-                                                        style={{ height: `${h}%`, backgroundColor: activeTheme.primary, opacity: 0.7 }}
-                                                    ></div>
-                                                ))}
-                                            </div>
-                                            <div className="flex justify-between mt-4 text-xs text-gray-400 font-medium uppercase tracking-wider">
-                                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Column: Recent Activity */}
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                        <h3 className="font-bold text-gray-800 text-lg mb-6">Recent Transactions</h3>
-                                        <div className="space-y-6">
-                                            {[
-                                                { name: 'Paracetamol 500mg', time: '2m ago', price: '₹120', status: 'Success' },
-                                                { name: 'Amoxicillin Cap', time: '15m ago', price: '₹450', status: 'Pending' },
-                                                { name: 'Vitamin C Tabs', time: '1h ago', price: '₹80', status: 'Success' },
-                                                { name: 'Ibuprofen Gel', time: '3h ago', price: '₹210', status: 'Success' },
-                                                { name: 'Cetirizine Syrup', time: '5h ago', price: '₹150', status: 'Failed' },
-                                            ].map((trx, i) => (
-                                                <div key={i} className="flex items-center justify-between group cursor-pointer">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-gray-100 transition-colors">
-                                                            <i data-lucide="package" className="w-5 h-5"></i>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-semibold text-gray-800">{trx.name}</p>
-                                                            <p className="text-[11px] text-gray-400">{trx.time}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="text-sm font-bold text-gray-800">{trx.price}</p>
-                                                        <p className={`text-[10px] font-bold uppercase ${trx.status === 'Success' ? 'text-green-500' : trx.status === 'Pending' ? 'text-amber-500' : 'text-red-500'}`}>
-                                                            {trx.status}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button className="w-full mt-8 py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors border-t border-gray-50 pt-4">
-                                            View All Transactions
-                                        </button>
-                                    </div>
-
+                            )}
+                            
+                            {/* Dashboard Card Container */}
+                            <div className="p-4 h-full w-full">
+                                <div className="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <iframe 
+                                        src={currentUrl} 
+                                        className="iframe-container"
+                                        onLoad={() => setLoading(false)}
+                                    ></iframe>
                                 </div>
                             </div>
                         </main>
