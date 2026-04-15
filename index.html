@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medicine Bardwan | Admin Enterprise</title>
     
-    <!-- Professional Font: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -15,50 +13,60 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; 
+            background-color: #f8fafc;
             color: #1e293b;
-            margin: 0;
-        }
-        
-        .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Smooth Iframe Container */
-        .content-wrapper {
-            height: calc(100vh - 64px);
-            margin-top: 64px;
-        }
-
-        .iframe-container {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-        }
-
-        /* Custom Scrollbar for Sidebar */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* Loading Animation */
-        .loader-line {
-            height: 3px;
-            width: 100%;
-            background: #e2e8f0;
-            position: relative;
             overflow: hidden;
         }
-        .loader-progress {
-            position: absolute;
-            height: 100%;
-            background: #3b82f6;
-            animation: loading 2s infinite ease-in-out;
+        
+        .luxury-font { font-family: 'Montserrat', sans-serif; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
-        @keyframes loading {
-            0% { left: -100%; width: 30%; }
-            50% { width: 60%; }
-            100% { left: 100%; width: 30%; }
+
+        /* Smooth Theme Transition */
+        .theme-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* Professional Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Loading Animation */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top: 3px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .fullscreen-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            z-index: 9999;
+        }
+
+        .close-btn {
+            background: #ef4444;
+            transition: all 0.2s;
+        }
+        .close-btn:hover { transform: scale(1.1); background: #dc2626; }
     </style>
 </head>
 <body>
@@ -67,171 +75,162 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- CONFIGURATION ---
+        // --- 7 PROFESSIONAL COLOR THEMES ---
         const ACCENT_THEMES = [
-            { name: 'Blue', primary: '#2563eb', bg: '#eff6ff', text: '#1e40af' },
-            { name: 'Emerald', primary: '#059669', bg: '#ecfdf5', text: '#065f46' },
-            { name: 'Indigo', primary: '#4f46e5', bg: '#eef2ff', text: '#3730a3' },
-            { name: 'Violet', primary: '#7c3aed', bg: '#f5f3ff', text: '#5b21b6' },
-            { name: 'Rose', primary: '#e11d48', bg: '#fff1f2', text: '#9f1239' },
-            { name: 'Slate', primary: '#334155', bg: '#f1f5f9', text: '#0f172a' },
+            { name: 'Royal Purple', primary: '#7c3aed', secondary: '#a78bfa', bg: '#f5f3ff', text: '#5b21b6' },
+            { name: 'Emerald', primary: '#059669', secondary: '#34d399', bg: '#ecfdf5', text: '#065f46' },
+            { name: 'Sapphire', primary: '#2563eb', secondary: '#60a5fa', bg: '#eff6ff', text: '#1e40af' },
+            { name: 'Rose', primary: '#e11d48', secondary: '#fb7185', bg: '#fff1f2', text: '#9f1239' },
+            { name: 'Sky Blue', primary: '#0ea5e9', secondary: '#7dd3fc', bg: '#f0f9ff', text: '#0369a1' },
+            { name: 'Amber', primary: '#d97706', secondary: '#fbbf24', bg: '#fffbeb', text: '#92400e' },
+            { name: 'Slate', primary: '#334155', secondary: '#94a3b8', bg: '#f8fafc', text: '#0f172a' },
         ];
 
         const MENU_ITEMS = [
             { id: 1, name: "Check List", icon: "check-square", link: "https://check-list-one-ochre.vercel.app/" },
             { id: 2, name: "Farmacy Voice", icon: "mic", link: "https://script.google.com/macros/s/AKfycbw_AdxUZs140zqw75jaL0qihFBHIhxr0_LyL08MhlNqYWwPcoYTxAjVbvj3UQxsAI5X/exec" },
             { id: 3, name: "Price Comparison", icon: "trending-up", link: "https://script.google.com/macros/s/AKfycbwUhmnmSJj8cu69x3YH8EvSWz7y_S_23NCt31Sl7zbOcIf0qnmjBFRe1vkgr2guc9GYHQ/exec" },
-            { id: 4, name: "Attendance Dashboard", icon: "calendar-check", link: "https://script.google.com/macros/s/AKfycbx1NFtN6E_PWl1QRQIu35Rv7rAaoahFyb4RSX9wRLtI8aZnt0dPASMSeEpI7GlxS9jiIQ/exec" },
-            { id: 5, name: "Order Management", icon: "shopping-cart", link: "https://script.google.com/macros/s/AKfycbxwCNFiPJHBSih_l6o8BOVWsFgdQ5-a1XbyUt9yjmxOnTuoJFxwY7ZuqLr519IhEzCi1A/exec" },
-            { id: 6, name: "Task Delegation", icon: "user-check", link: "https://script.google.com/macros/s/AKfycbzUjEFdb7RMvW6dw6gUUG4naSDsd6xuLxuCtcCKmJBoiM_488IF7lkoC7JH_-jAc1m3Tg/exec" },
+            { id: 4, name: "Attendance", icon: "calendar-check", link: "https://script.google.com/macros/s/AKfycbx1NFtN6E_PWl1QRQIu35Rv7rAaoahFyb4RSX9wRLtI8aZnt0dPASMSeEpI7GlxS9jiIQ/exec" },
+            { id: 5, name: "Order Mgmt", icon: "shopping-cart", link: "https://script.google.com/macros/s/AKfycbxwCNFiPJHBSih_l6o8BOVWsFgdQ5-a1XbyUt9yjmxOnTuoJFxwY7ZuqLr519IhEzCi1A/exec" },
+            { id: 6, name: "Delegation", icon: "user-check", link: "https://script.google.com/macros/s/AKfycbzUjEFdb7RMvW6dw6gUUG4naSDsd6xuLxuCtcCKmJBoiM_488IF7lkoC7JH_-jAc1m3Tg/exec" },
             { id: 7, name: "Employee Master", icon: "users", link: "https://script.google.com/macros/s/AKfycbzKx9StAI33YxhFQOsDxfZhu048M0L8n6JtwmOlEb4dBBJiSlULp-Fe6C3V3eyDHfMJqA/exec" },
-            { id: 8, name: "Daily Work MIS", icon: "bar-chart-2", link: "https://script.google.com/macros/s/AKfycbzPenTggHP53wmfQ342QvzwwNR_tdUW4FNiP9MvoYrkvc2zpr8bLG0W6UiQtvIgEwB4/exec" },
+            { id: 8, name: "Daily MIS", icon: "bar-chart-2", link: "https://script.google.com/macros/s/AKfycbzPenTggHP53wmfQ342QvzwwNR_tdUW4FNiP9MvoYrkvc2zpr8bLG0W6UiQtvIgEwB4/exec" },
         ];
 
         const App = () => {
-            const [isSidebarOpen, setSidebarOpen] = useState(true);
-            const [activeTheme, setActiveTheme] = useState(ACCENT_THEMES[0]);
-            const [currentUrl, setCurrentUrl] = useState(MENU_ITEMS[0].link);
-            const [activeId, setActiveId] = useState(MENU_ITEMS[0].id);
+            const [activeTheme, setActiveTheme] = useState(ACCENT_THEMES[2]); // Default Sapphire
+            const [currentUrl, setCurrentUrl] = useState(null);
+            const [activeId, setActiveId] = useState(null);
             const [loading, setLoading] = useState(false);
+            const [isFullscreen, setIsFullscreen] = useState(false);
 
             useEffect(() => {
                 lucide.createIcons();
-            }, [isSidebarOpen, activeTheme, currentUrl, activeId]);
+            }, [activeTheme, currentUrl, activeId, isFullscreen]);
 
             const handleNav = (item) => {
                 setLoading(true);
                 setActiveId(item.id);
                 setCurrentUrl(item.link);
+                setIsFullscreen(true);
+            };
+
+            const handleClose = () => {
+                setIsFullscreen(false);
+                setCurrentUrl(null);
+                setActiveId(null);
+                setLoading(false);
             };
 
             return (
-                <div className="flex h-screen w-full overflow-hidden bg-slate-50">
+                <div className="flex flex-col h-screen w-full bg-slate-50">
                     
-                    {/* SIDEBAR */}
-                    <aside className={`sidebar-transition bg-white border-r border-slate-200 flex flex-col z-50
-                        ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
-                        
-                        {/* BRANDING */}
-                        <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm" 
-                                 style={{ backgroundColor: activeTheme.primary }}>
+                    {/* COMPACT HEADER */}
+                    <header className="h-16 glass-card border-b border-slate-200 flex items-center justify-between px-8 shrink-0 shadow-sm z-40">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-md theme-transition" 
+                                 style={{ background: `linear-gradient(135deg, ${activeTheme.primary} 0%, ${activeTheme.secondary} 100%)` }}>
                                 <i data-lucide="pill" className="w-5 h-5"></i>
                             </div>
-                            {isSidebarOpen && (
-                                <span className="ml-3 font-bold text-slate-800 text-sm tracking-tight whitespace-nowrap">
-                                    Medicine <span style={{ color: activeTheme.primary }}>Bardwan</span>
-                                </span>
-                            )}
+                            <div>
+                                <h1 className="luxury-font font-bold text-slate-800 text-lg leading-none">
+                                    Medicine <span className="theme-transition" style={{ color: activeTheme.primary }}>Bardwan</span>
+                                </h1>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Enterprise Suite</p>
+                            </div>
                         </div>
-
-                        {/* NAVIGATION */}
-                        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto no-scrollbar">
-                            {MENU_ITEMS.map((item) => {
-                                const isActive = activeId === item.id;
-                                return (
+                        
+                        <div className="flex items-center gap-6">
+                            {/* Theme Switcher (Compact) */}
+                            <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                                {ACCENT_THEMES.map((t) => (
                                     <button
+                                        key={t.name}
+                                        onClick={() => setActiveTheme(t)}
+                                        className="w-5 h-5 rounded-full transition-all transform hover:scale-125 relative"
+                                        style={{ 
+                                            background: `linear-gradient(135deg, ${t.primary} 0%, ${t.secondary} 100%)`,
+                                            boxShadow: activeTheme.name === t.name ? `0 0 0 2px white, 0 0 0 4px ${t.primary}` : 'none'
+                                        }}
+                                    />
+                                ))}
+                            </div>
+
+                            <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-xs font-bold text-slate-700">Administrator</p>
+                                    <p className="text-[10px] text-emerald-500 font-medium">● System Active</p>
+                                </div>
+                                <div className="w-9 h-9 rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+                                    <img src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff" alt="profile" />
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* DASHBOARD CONTENT */}
+                    <main className="flex-1 overflow-y-auto custom-scrollbar p-8">
+                        <div className="max-w-6xl mx-auto">
+                            
+                            {/* WELCOME SECTION (Compact) */}
+                            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-800">Dashboard Overview</h2>
+                                    <p className="text-slate-500 text-sm">Welcome back, select a module to manage your operations.</p>
+                                </div>
+                                <div className="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white border border-slate-200 text-slate-500 shadow-sm">
+                                    v2.0.4 Stable
+                                </div>
+                            </div>
+
+                            {/* GRID (Standard Professional Spacing) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                {MENU_ITEMS.map((item) => (
+                                    <div
                                         key={item.id}
                                         onClick={() => handleNav(item)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group
-                                        ${isSidebarOpen ? 'justify-start' : 'justify-center'}
-                                        ${isActive ? 'font-semibold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
-                                        style={isActive ? { 
-                                            backgroundColor: activeTheme.bg, 
-                                            color: activeTheme.text 
-                                        } : {}}
+                                        className="group glass-card rounded-2xl p-5 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200"
                                     >
-                                        <i data-lucide={item.icon} className={`w-5 h-5 shrink-0 ${isActive ? 'text-current' : 'text-slate-400 group-hover:text-slate-600'}`}></i>
-                                        {isSidebarOpen && <span className="text-sm whitespace-nowrap">{item.name}</span>}
-                                        
-                                        {!isSidebarOpen && (
-                                            <div className="fixed left-20 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                                                {item.name}
-                                            </div>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </nav>
-
-                        {/* SIDEBAR FOOTER */}
-                        <div className="p-4 border-t border-slate-100">
-                            <button 
-                                onClick={() => setSidebarOpen(!isSidebarOpen)}
-                                className="w-full flex items-center justify-center p-2 rounded-md hover:bg-slate-100 text-slate-400 transition-colors"
-                            >
-                                <i data-lucide={isSidebarOpen ? "chevron-left" : "menu"} className="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </aside>
-
-                    {/* MAIN CONTENT AREA */}
-                    <div className="flex-1 flex flex-col min-w-0">
-                        
-                        {/* HEADER (TOP NAV) */}
-                        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-                            <div className="flex items-center gap-4">
-                                <div className="text-sm font-medium text-slate-500">
-                                    Modules <span className="mx-2 text-slate-300">/</span>
-                                    <span className="text-slate-900 font-semibold">{MENU_ITEMS.find(m => m.id === activeId)?.name}</span>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-6">
-                                {/* Professional Theme Selector */}
-                                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200">
-                                    {ACCENT_THEMES.map((t) => (
-                                        <button
-                                            key={t.name}
-                                            onClick={() => setActiveTheme(t)}
-                                            className="w-5 h-5 rounded-full border-2 transition-all transform hover:scale-110"
-                                            style={{ 
-                                                backgroundColor: t.primary,
-                                                borderColor: activeTheme.name === t.name ? '#ffffff' : 'transparent',
-                                                boxShadow: activeTheme.name === t.name ? '0 0 0 1px #e2e8f0' : 'none'
-                                            }}
-                                            title={t.name}
-                                        />
-                                    ))}
-                                </div>
-
-                                <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
-                                    <div className="text-right hidden sm:block">
-                                        <p className="text-xs font-bold text-slate-800 leading-none">Admin User</p>
-                                        <p className="text-[10px] text-emerald-600 font-medium mt-1">● System Online</p>
-                                    </div>
-                                    <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 overflow-hidden shadow-sm">
-                                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="avatar" />
-                                    </div>
-                                </div>
-                            </div>
-                        </header>
-
-                        {/* IFRAME VIEWPORT */}
-                        <main className="relative flex-1 bg-slate-50 overflow-hidden">
-                            {loading && (
-                                <div className="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center">
-                                    <div className="w-48">
-                                        <div className="loader-line">
-                                            <div className="loader-progress" style={{ backgroundColor: activeTheme.primary }}></div>
+                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 theme-transition group-hover:scale-110 shadow-sm"
+                                             style={{ background: `linear-gradient(135deg, ${activeTheme.primary} 0%, ${activeTheme.secondary} 100%)` }}>
+                                            <i data-lucide={item.icon} className="w-6 h-6 text-white"></i>
                                         </div>
+                                        <h3 className="font-bold text-slate-800 text-md mb-1 group-hover:text-black">{item.name}</h3>
+                                        <p className="text-slate-400 text-xs">Module Access</p>
                                     </div>
-                                    <p className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Loading Module</p>
+                                ))}
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* FULLSCREEN MODULE VIEW */}
+                    {isFullscreen && (
+                        <div className="fixed inset-0 z-[10000] bg-white">
+                            {loading && (
+                                <div className="absolute inset-0 z-[10001] flex flex-col items-center justify-center bg-white">
+                                    <div className="loader mb-4" style={{ color: activeTheme.primary }}></div>
+                                    <p className="text-sm font-bold tracking-widest text-slate-400 uppercase">
+                                        Loading {MENU_ITEMS.find(m => m.id === activeId)?.name}
+                                    </p>
                                 </div>
                             )}
-                            
-                            {/* Dashboard Card Container */}
-                            <div className="p-4 h-full w-full">
-                                <div className="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <iframe 
-                                        src={currentUrl} 
-                                        className="iframe-container"
-                                        onLoad={() => setLoading(false)}
-                                    ></iframe>
-                                </div>
-                            </div>
-                        </main>
-                    </div>
+
+                            <iframe 
+                                src={currentUrl} 
+                                className="fullscreen-iframe"
+                                onLoad={() => setLoading(false)}
+                            ></iframe>
+
+                            <button
+                                onClick={handleClose}
+                                className="close-btn fixed top-5 right-5 z-[10002] w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg"
+                            >
+                                <i data-lucide="x" className="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    )}
                 </div>
             );
         };
